@@ -6,7 +6,7 @@
 /*   By: labintei <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/09 17:41:27 by labintei          #+#    #+#             */
-/*   Updated: 2021/05/10 00:26:21 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/10 11:08:00 by labintei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,56 +17,18 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-int		get_next_line(int fd, char **line)
+int		get_next_line(char **line)
 {
-	char		stock[100000];
-	static int			n;
-	int					i;
-	int					c;
-
-	c = -1;
-	read(0, stock, 100000);
-	if(stock < 0 || !line)
-		return(-1);
-	i = n;
-	while(stock[n] != '\n' || stock[n] != '\0')
-		n++;
-	*line = malloc((sizeof(char)) * (n - i + 1));
-	--i;
-	while(stock[++i] != '\n' || stock[i] != '\0')
-		*line[++c] = stock[i];
-	*line[++c] = '\0';
-	if(stock[n] == '\n')
-	{
-		n++;
-		return(1);
-	}
-	else
-		return(0);
-}
-
-void		ft_putstr(char *s)
-{	
+	int		ret;
 	int		i;
+	int		buf;
 
-	i = -1;
-	while(s[++i])
-		write(1, &s[i], 1);
-	return ;
-}
-
-int		main(int argc, char **argv)
-{
-	char	*line;
-	int		fd;
-
-	line = NULL;
-	fd = open(argv[1],O_RDONLY);
-	while(get_next_line(fd, &line) == '1')
-	{
-		ft_putstr(line);
-		ft_putstr("\n");
-	}
-	close(fd);
-	return(0);
+	i = 0;
+	buf = 0;
+	ret = 0;
+	*line = malloc(1000000);
+	while((ret = read(0,(char *)&buf, 1) == 1) && buf != '\n')
+		(*line)[i++] = buf;
+	(*line)[i] = '\0';
+	return(ret);
 }
