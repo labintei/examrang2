@@ -6,7 +6,7 @@
 /*   By: labintei <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/09 18:05:23 by labintei          #+#    #+#             */
-/*   Updated: 2021/05/13 15:03:37 by labintei         ###   ########.fr       */
+/*   Updated: 2021/05/13 15:12:49 by labintei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,6 +170,7 @@ int		ft_print_type(struct s_flags *f, va_list ap)
 	long int		n;
 	char			*s;
 	char			neg;
+	int				largeur;
 
 	u = (f->type == 'x')? va_arg(ap, unsigned int) : 0;
 	n = (f->type == 'd')? (long int)(va_arg(ap, int)) : 0;
@@ -178,13 +179,17 @@ int		ft_print_type(struct s_flags *f, va_list ap)
 	size = print_type(f, n, u, s, 0);
 	ret = 0;
 	neg = (n < 0)? 1 : 0;
+	largeur = (f->type == 'd' && f->intprecision + neg > size)? f->intprecision + neg : size;
 	if(n < 0 && f->i == '0' && !(f->intprecision > 0 && f->precision == '.'))
 	{
 		ret += write(1, "-", 1);
 		n *= -1;
 		size--;
 	}
-	ret += ft_largeur(f, size, 0);
+	if(f->type != 'd')
+		ret += ft_largeur(f, size, 0);
+	else
+		ret += ft_largeur(f, largeur, 0);
 	if(n < 0 && f->intprecision > 0 && f->precision == '.')
 	{
 		ret += write(1, "-", 1);
@@ -193,7 +198,10 @@ int		ft_print_type(struct s_flags *f, va_list ap)
 	}
 	ret += ft_largeur(f, size, 2);
 	ret += print_type(f, n, u, s, 1);
-	ret += ft_largeur(f, size + neg, 1);
+	if(f->type != 'd')
+		ret += ft_largeur(f, size + neg, 1);
+	else
+		ret += ft_largeur(f, largeur, 1);
 	return(ret);
 }
 
