@@ -6,7 +6,7 @@
 /*   By: labintei <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/09 18:05:23 by labintei          #+#    #+#             */
-/*   Updated: 2021/05/13 11:05:50 by labintei         ###   ########.fr       */
+/*   Updated: 2021/05/13 15:03:37 by labintei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,7 +178,19 @@ int		ft_print_type(struct s_flags *f, va_list ap)
 	size = print_type(f, n, u, s, 0);
 	ret = 0;
 	neg = (n < 0)? 1 : 0;
-	ret += ft_largeur(f, size + neg, 0);
+	if(n < 0 && f->i == '0' && !(f->intprecision > 0 && f->precision == '.'))
+	{
+		ret += write(1, "-", 1);
+		n *= -1;
+		size--;
+	}
+	ret += ft_largeur(f, size, 0);
+	if(n < 0 && f->intprecision > 0 && f->precision == '.')
+	{
+		ret += write(1, "-", 1);
+		n *= -1;
+		size--;
+	}
 	ret += ft_largeur(f, size, 2);
 	ret += print_type(f, n, u, s, 1);
 	ret += ft_largeur(f, size + neg, 1);
@@ -201,23 +213,23 @@ int		printflags(const char *s, va_list ap,int *n)
 		f.i = '-';
 		++(*n);
 	}
-	while(ft_find(s[*n], "0123456789"))
+	while(ft_find(s[(*n)], "0123456789"))
 	{
 		f.largeur = (f.largeur * 10) + (s[*n] - '0');
 		++(*n);
 	}
-	if(ft_find(s[*n],"."))
+	if(ft_find(s[(*n)],"."))
 	{
 		f.precision = '.';
-		(*n)++;
+		++(*n);
 	}
-	while(ft_find(s[*n], "0123456789"))
+	while(ft_find(s[(*n)], "0123456789"))
 	{
 		f.intprecision = (f.intprecision * 10) + (s[*n] - '0');
-		(*n)++;
+		++(*n);
 	}
-	if(ft_find(s[*n], "sxd"))
-	{
+	if(ft_find(s[(*n)], "sxd"))
+	{	
 		f.type = s[*n];
 		(*n)++;
 		return(ft_print_type(&f, ap));
