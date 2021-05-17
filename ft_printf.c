@@ -6,7 +6,7 @@
 /*   By: labintei <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/09 18:05:23 by labintei          #+#    #+#             */
-/*   Updated: 2021/05/13 15:12:49 by labintei         ###   ########.fr       */
+/*   Updated: 2021/05/17 13:44:36 by labintei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,15 +125,13 @@ int		print_type(struct s_flags *f,long int d, unsigned int u, char *s, char y)
 int		ft_largeur(struct s_flags *f, int size, char y)
 {
 	int		ret;
-	int		sizebis;
 	int		stock;
 
 	stock = f->intprecision;
-	sizebis = (f->type != 's' && size < f->intprecision && f->precision == '.')? f->intprecision : size;
 	ret = 0;
 	if(y == 0 && f->i != '-')
 	{
-		while(f->largeur > sizebis)
+		while(f->largeur > size)
 		{
 			if(f->i == '0' && (f->intprecision <= 0 || f->precision != '.'))
 				ret += write(1, "0", 1);
@@ -153,7 +151,7 @@ int		ft_largeur(struct s_flags *f, int size, char y)
 	f->intprecision = stock;
 	if(y == 1 && f->i == '-')
 	{
-		while(f->largeur > sizebis)
+		while(f->largeur > size)
 		{	
 			ret += write(1, " ", 1);
 			f->largeur--;
@@ -179,17 +177,14 @@ int		ft_print_type(struct s_flags *f, va_list ap)
 	size = print_type(f, n, u, s, 0);
 	ret = 0;
 	neg = (n < 0)? 1 : 0;
-	largeur = (f->type == 'd' && f->intprecision + neg > size)? f->intprecision + neg : size;
+	largeur = (f->type != 's' && size < f->intprecision + neg && f->precision == '.')? f->intprecision + neg : size;
 	if(n < 0 && f->i == '0' && !(f->intprecision > 0 && f->precision == '.'))
 	{
 		ret += write(1, "-", 1);
 		n *= -1;
 		size--;
 	}
-	if(f->type != 'd')
-		ret += ft_largeur(f, size, 0);
-	else
-		ret += ft_largeur(f, largeur, 0);
+	ret += ft_largeur(f, largeur, 0);
 	if(n < 0 && f->intprecision > 0 && f->precision == '.')
 	{
 		ret += write(1, "-", 1);
@@ -198,10 +193,7 @@ int		ft_print_type(struct s_flags *f, va_list ap)
 	}
 	ret += ft_largeur(f, size, 2);
 	ret += print_type(f, n, u, s, 1);
-	if(f->type != 'd')
-		ret += ft_largeur(f, size + neg, 1);
-	else
-		ret += ft_largeur(f, largeur, 1);
+	ret += ft_largeur(f, largeur, 1);
 	return(ret);
 }
 
